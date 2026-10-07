@@ -308,7 +308,6 @@
         </div>
     </div>
 
-    <!-- 3 Thẻ Tóm Tắt Phía Trên -->
     <div class="summary-row">
         <div class="mini-card">
             <div class="label">Rủi Ro Lệnh Này</div>
@@ -325,10 +324,105 @@
     </div>
 
     <div class="main-grid">
-        <!-- Thông Số Đầu Vào -->
         <div class="card-box">
             <div class="card-title">⚙️ Thông Số Tài Khoản & Lệnh</div>
 
             <div class="form-group">
                 <label>TÊN CẶP GIAO DỊCH (Ví dụ: BTCUSDT)</label>
-                <input type="text" id="pairName" value="BTCUSDT" oninput="
+                <input type="text" id="pairName" value="BTCUSDT" oninput="calculate()">
+            </div>
+
+            <div class="row-2">
+                <div class="form-group">
+                    <label>VỐN QUỸ BAN ĐẦU ($)</label>
+                    <input type="number" id="accountBalance" value="100000" oninput="calculate()">
+                </div>
+                <div class="form-group">
+                    <label>SỐ DƯ ĐẦU NGÀY ($)</label>
+                    <input type="number" id="dayStartBalance" value="100000" oninput="calculate()">
+                </div>
+            </div>
+
+            <div class="row-2">
+                <div class="form-group">
+                    <label>RỦI RO MỖI LỆNH (%)</label>
+                    <input type="number" id="riskPercentage" value="1" step="0.1" oninput="calculate()">
+                </div>
+                <div class="form-group">
+                    <label>ĐÒN BẨY (X)</label>
+                    <input type="number" id="leverage" value="20" oninput="calculate()">
+                </div>
+            </div>
+
+            <div class="row-2">
+                <div class="form-group">
+                    <label>GIÁ ENTRY ($)</label>
+                    <input type="number" id="entryPrice" value="65000" oninput="calculate()">
+                </div>
+                <div class="form-group">
+                    <label>CẮT LỖ (SL)</label>
+                    <input type="number" id="stopLoss" value="64000" oninput="calculate()">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>CHỐT LỜI (TP)</label>
+                <input type="number" id="takeProfit" value="67000" oninput="calculate()">
+            </div>
+            <div id="errorMsg" class="error-text"></div>
+        </div>
+
+        <div class="card-box">
+            <div class="card-title">📋 Khối Lượng & Kiểm Soát Quỹ</div>
+
+            <div class="result-row">
+                <span>Khối lượng vị thế (Units):</span>
+                <span id="positionUnits" class="result-val">1.0000</span>
+            </div>
+            <div class="result-row">
+                <span>Tổng giá trị vị thế (Size):</span>
+                <span id="totalPositionSize" class="result-val">$65,000.00</span>
+            </div>
+            <div class="result-row">
+                <span>Ký quỹ tối thiểu (Margin):</span>
+                <span id="requiredMargin" class="result-val">$3,250.00</span>
+            </div>
+            <div class="result-row">
+                <span>Số Tiền Lỗ Lệnh Này:</span>
+                <span id="lossAmount" class="result-val highlight-loss">-$1000.00</span>
+            </div>
+            <div class="result-row">
+                <span>Số Tiền Lãi Lệnh Này:</span>
+                <span id="profitAmount" class="result-val highlight-profit">+$2000.00</span>
+            </div>
+
+            <div class="ftmo-box">
+                <div class="card-title" style="margin-bottom: 8px; color: var(--accent-yellow);">🛡️ Giới Hạn Quỹ (Daily 5%)</div>
+                <div class="result-row">
+                    <span>Hạn mức lỗ trong ngày:</span>
+                    <span id="dailyLimit" class="result-val highlight-warn">-$5000.00 (5%)</span>
+                </div>
+                <div class="result-row">
+                    <span>Tổng sụt giảm cho phép (Max 10%):</span>
+                    <span id="maxDrawdownLimit" class="result-val highlight-loss">-$10000.00 (10%)</span>
+                </div>
+            </div>
+
+            <button class="btn-save" onclick="saveTradeToJournal()">💾 Lưu Lệnh</button>
+        </div>
+    </div>
+
+    <div class="journal-section">
+        <div class="journal-header">
+            <div class="card-title" style="margin: 0;">📊 Tổng Hợp Lãi/Lỗ & Nhật Ký Giao Dịch</div>
+            <button class="btn-clear" onclick="clearJournal()">Xóa Toàn Bộ</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="s-label">Tổng Số Lệnh Đã Lưu</div>
+                <div id="statTotalTrades" class="s-val">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="s-label">Tổng Rủi Ro (% / Vốn Quỹ)</div>
+                <div id="statTotalLoss" class="s
