@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Trị Vốn, Thi Quỹ & Nhật Ký Giao Dịch</title>
+    <title>Quản Trị Vốn, Thi Quỹ & Tổng Hợp Nhật Ký</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -197,7 +197,6 @@
             margin-top: 16px;
         }
 
-        /* Nút lưu lệnh */
         .btn-save {
             width: 100%;
             background: var(--accent-blue);
@@ -215,7 +214,7 @@
             opacity: 0.9;
         }
 
-        /* Khu vực Nhật ký */
+        /* Phần tổng hợp & Nhật ký */
         .journal-section {
             background: var(--card-inner);
             border: 1px solid var(--border-color);
@@ -242,6 +241,29 @@
             background: var(--accent-red);
             color: white;
         }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .stat-box {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+        }
+        .stat-box .s-label {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .stat-box .s-val {
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -277,8 +299,8 @@
 <div class="container">
     <div class="header-top">
         <div>
-            <h2>🏛️ Quản Trị Vốn, Thi Quỹ & Nhật Ký Lệnh</h2>
-            <div class="subtitle">Kiểm soát rủi ro chuẩn quỹ và lưu lại nhật ký giao dịch hiệu quả</div>
+            <h2>🏛️ Quản Trị Vốn, Thi Quỹ & Tổng Hợp Lãi Lỗ</h2>
+            <div class="subtitle">Kiểm soát rủi ro chuẩn quỹ và tổng hợp hiệu suất giao dịch</div>
         </div>
         <div class="side-selector">
             <button id="btnLong" class="side-btn active long" onclick="setSide('LONG')">LONG</button>
@@ -286,290 +308,8 @@
         </div>
     </div>
 
-    <!-- Tóm tắt nhanh -->
+    <!-- Tóm tắt nhanh lệnh hiện tại -->
     <div class="summary-row">
         <div class="mini-card">
             <div class="label">Rủi Ro Lệnh Này</div>
-            <div id="topRiskAmount" class="val highlight-loss">$100.00</div>
-        </div>
-        <div class="mini-card">
-            <div class="label">Lợi Nhuận Kỳ Vọng</div>
-            <div id="topProfitAmount" class="val highlight-profit">$200.00</div>
-        </div>
-        <div class="mini-card">
-            <div class="label">Tỷ Lệ R : R</div>
-            <div id="topRrRatio" class="val">1 : 2.00</div>
-        </div>
-    </div>
-
-    <div class="main-grid">
-        <!-- Thông số đầu vào -->
-        <div class="card-box">
-            <div class="card-title">⚙️ Thông Số Tài Khoản & Lệnh</div>
-
-            <div class="form-group">
-                <label>TÊN CẶP GIAO DỊCH (Ví dụ: BTCUSDT)</label>
-                <input type="text" id="pairName" value="BTCUSDT">
-            </div>
-
-            <div class="row-2">
-                <div class="form-group">
-                    <label>VỐN QUỸ BAN ĐẦU ($)</label>
-                    <input type="number" id="accountBalance" value="100000" oninput="calculate()">
-                </div>
-                <div class="form-group">
-                    <label>SỐ DƯ ĐẦU NGÀY ($)</label>
-                    <input type="number" id="dayStartBalance" value="100000" oninput="calculate()">
-                </div>
-            </div>
-
-            <div class="row-2">
-                <div class="form-group">
-                    <label>RỦI RO MỖI LỆNH (%)</label>
-                    <input type="number" id="riskPercentage" value="1" step="0.1" oninput="calculate()">
-                </div>
-                <div class="form-group">
-                    <label>ĐÒN BẨY (x)</label>
-                    <input type="number" id="leverage" value="20" oninput="calculate()">
-                </div>
-            </div>
-
-            <div class="row-2">
-                <div class="form-group">
-                    <label>GIÁ ENTRY ($)</label>
-                    <input type="number" id="entryPrice" value="65000" oninput="calculate()">
-                </div>
-                <div class="form-group">
-                    <label>CẮT LỖ (SL)</label>
-                    <input type="number" id="stopLoss" value="64000" oninput="calculate()">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>CHỐT LỜI (TP)</label>
-                <input type="number" id="takeProfit" value="67000" oninput="calculate()">
-            </div>
-            <div id="errorMsg" class="error-text"></div>
-        </div>
-
-        <!-- Kết quả & Quản lý quỹ -->
-        <div class="card-box">
-            <div class="card-title">📋 Khối Lượng & Kiểm Soát Quỹ</div>
-
-            <div class="result-row">
-                <span>Khối lượng vị thế (Units):</span>
-                <span id="positionUnits" class="result-val">100.00</span>
-            </div>
-            <div class="result-row">
-                <span>Tổng giá trị vị thế (Size):</span>
-                <span id="totalPositionSize" class="result-val">$6,500,000</span>
-            </div>
-            <div class="result-row">
-                <span>Ký quỹ tối thiểu (Margin):</span>
-                <span id="requiredMargin" class="result-val">$325,000</span>
-            </div>
-            <div class="result-row">
-                <span>Số Tiền Lỗ Lệnh Này:</span>
-                <span id="lossAmount" class="result-val highlight-loss">-$1,000.00</span>
-            </div>
-            <div class="result-row">
-                <span>Số Tiền Lãi Lệnh Này:</span>
-                <span id="profitAmount" class="result-val highlight-profit">+$2,000.00</span>
-            </div>
-
-            <div class="ftmo-box">
-                <div class="card-title" style="margin-bottom: 8px; color: var(--accent-yellow);">🛡️ Giới Hạn Quỹ (Daily 5%)</div>
-                <div class="result-row">
-                    <span>Hạn mức lỗ trong ngày:</span>
-                    <span id="dailyLimit" class="result-val highlight-warn">$5,000.00</span>
-                </div>
-                <div class="result-row">
-                    <span>Tổng sụt giảm cho phép (Max 10%):</span>
-                    <span id="maxDrawdownLimit" class="result-val highlight-loss">$10,000.00</span>
-                </div>
-            </div>
-
-            <button class="btn-save" onclick="saveTradeToJournal()">💾 Lưu Lệnh Này Vào Nhật Ký</button>
-        </div>
-    </div>
-
-    <!-- Khu vực hiển thị nhật ký giao dịch -->
-    <div class="journal-section">
-        <div class="journal-header">
-            <div class="card-title" style="margin: 0;">📖 Nhật Ký Giao Dịch Đã Lưu</div>
-            <button class="btn-clear" onclick="clearJournal()">Xóa Toàn Bộ Nhật Ký</button>
-        </div>
-        <div style="overflow-x: auto;">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Thời Gian</th>
-                        <th>Cặp</th>
-                        <th>Loại</th>
-                        <th>Entry</th>
-                        <th>SL / TP</th>
-                        <th>Khối lượng</th>
-                        <th>Lỗ / Lãi Dự Kiến</th>
-                    </tr>
-                </thead>
-                <tbody id="journalTableBody">
-                    <!-- Danh sách lệnh lưu sẽ hiển thị ở đây -->
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<script>
-let currentSide = 'LONG';
-
-function setSide(side) {
-    currentSide = side;
-    let btnLong = document.getElementById('btnLong');
-    let btnShort = document.getElementById('btnShort');
-    
-    if (side === 'LONG') {
-        btnLong.className = 'side-btn active long';
-        btnShort.className = 'side-btn short';
-    } else {
-        btnLong.className = 'side-btn long';
-        btnShort.className = 'side-btn active short';
-    }
-    calculate();
-}
-
-function calculate() {
-    let balance = parseFloat(document.getElementById('accountBalance').value) || 0;
-    let dayStartBalance = parseFloat(document.getElementById('dayStartBalance').value) || balance;
-    let riskPct = parseFloat(document.getElementById('riskPercentage').value) || 0;
-    let entry = parseFloat(document.getElementById('entryPrice').value) || 0;
-    let leverage = parseFloat(document.getElementById('leverage').value) || 1;
-    let sl = parseFloat(document.getElementById('stopLoss').value) || 0;
-    let tp = parseFloat(document.getElementById('takeProfit').value) || 0;
-    let errorMsg = document.getElementById('errorMsg');
-
-    errorMsg.innerText = "";
-
-    let lossAmount = dayStartBalance * (riskPct / 100);
-    let units = 0;
-    let positionSize = 0;
-    let margin = 0;
-    let profitAmount = 0;
-    let rr = 0;
-
-    if (entry > 0) {
-        if (currentSide === 'LONG') {
-            if (sl >= entry || tp <= entry) {
-                errorMsg.innerText = "⚠️ Lệnh LONG: Stop Loss phải nhỏ hơn Entry và Take Profit phải lớn hơn Entry!";
-            }
-        } else {
-            if (sl <= entry || tp >= entry) {
-                errorMsg.innerText = "⚠️ Lệnh SHORT: Stop Loss phải lớn hơn Entry và Take Profit phải nhỏ hơn Entry!";
-            }
-        }
-
-        let slDistance = Math.abs(entry - sl);
-        let tpDistance = Math.abs(tp - entry);
-
-        if (slDistance > 0 && errorMsg.innerText === "") {
-            units = lossAmount / slDistance;
-            positionSize = units * entry;
-            margin = leverage > 0 ? positionSize / leverage : positionSize;
-            rr = tpDistance / slDistance;
-            profitAmount = lossAmount * rr;
-        }
-    }
-
-    let dailyLimitVal = dayStartBalance * 0.05;
-    let maxDrawdownVal = balance * 0.10;
-
-    document.getElementById('topRiskAmount').innerText = `$${lossAmount.toFixed(2)}`;
-    document.getElementById('topProfitAmount').innerText = errorMsg.innerText ? "$0.00" : `$${profitAmount.toFixed(2)}`;
-    document.getElementById('topRrRatio').innerText = errorMsg.innerText ? "1 : 0" : `1 : ${rr.toFixed(2)}`;
-
-    document.getElementById('positionUnits').innerText = units.toFixed(4);
-    document.getElementById('totalPositionSize').innerText = `$${positionSize.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-    document.getElementById('requiredMargin').innerText = `$${margin.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-    document.getElementById('lossAmount').innerText = `-$${lossAmount.toFixed(2)}`;
-    document.getElementById('profitAmount').innerText = errorMsg.innerText ? "$0.00" : `+$${profitAmount.toFixed(2)}`;
-
-    document.getElementById('dailyLimit').innerText = `-$${dailyLimitVal.toFixed(2)} (5%)`;
-    document.getElementById('maxDrawdownLimit').innerText = `-$${maxDrawdownVal.toFixed(2)} (10%)`;
-
-    return { units, lossAmount, profitAmount, entry, sl, tp };
-}
-
-// Xử lý lưu nhật ký giao dịch
-function saveTradeToJournal() {
-    let errorMsg = document.getElementById('errorMsg').innerText;
-    if (errorMsg !== "") {
-        alert("Vui lòng sửa lỗi thông số trước khi lưu lệnh!");
-        return;
-    }
-
-    let data = calculate();
-    let pair = document.getElementById('pairName').value || "BTCUSDT";
-    let now = new Date();
-    let timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')} ${now.getDate()}/${now.getMonth()+1}`;
-
-    let tradeItem = {
-        time: timeStr,
-        pair: pair,
-        side: currentSide,
-        entry: data.entry,
-        sl: data.sl,
-        tp: data.tp,
-        units: data.units.toFixed(4),
-        loss: data.lossAmount.toFixed(2),
-        profit: data.profitAmount.toFixed(2)
-    };
-
-    let history = JSON.parse(localStorage.getItem('trade_journal')) || [];
-    history.unshift(tradeItem); // Thêm vào đầu danh sách
-    localStorage.setItem('trade_journal', JSON.stringify(history));
-
-    renderJournal();
-    alert("Đã lưu lệnh vào nhật ký thành công!");
-}
-
-function renderJournal() {
-    let history = JSON.parse(localStorage.getItem('trade_journal')) || [];
-    let tbody = document.getElementById('journalTableBody');
-    tbody.innerHTML = "";
-
-    if (history.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Chưa có lệnh nào được lưu.</td></tr>`;
-        return;
-    }
-
-    history.forEach(item => {
-        let badgeClass = item.side === 'LONG' ? 'badge-long' : 'badge-short';
-        let tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${item.time}</td>
-            <td style="font-weight: bold;">${item.pair}</td>
-            <td><span class="${badgeClass}">${item.side}</span></td>
-            <td>$${item.entry}</td>
-            <td>$${item.sl} / $${item.tp}</td>
-            <td>${item.units}</td>
-            <td><span style="color:var(--accent-red);">-$${item.loss}</span> / <span style="color:var(--accent-green);">+$${item.profit}</span></td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-function clearJournal() {
-    if (confirm("Bạn có chắc chắn muốn xóa toàn bộ nhật ký giao dịch không?")) {
-        localStorage.removeItem('trade_journal');
-        renderJournal();
-    }
-}
-
-window.onload = function() {
-    calculate();
-    renderJournal();
-};
-</script>
-
-</body>
-</html>
+            <div
