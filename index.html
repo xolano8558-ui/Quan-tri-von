@@ -375,4 +375,52 @@
             <div class="card-title">📋 Khối Lượng & Kiểm Soát Quỹ</div>
 
             <div class="result-row">
-                <span>Khối lượng vị thế (Units
+                <span>Khối lượng vị thế (Units):</span>
+                <span id="positionUnits" class="result-val">100.00</span>
+            </div>
+            <div class="result-row">
+                <span>Tổng giá trị vị thế (Size):</span>
+                <span id="totalPositionSize" class="result-val">$6,500,000</span>
+            </div>
+            <div class="result-row">
+                <span>Ký quỹ tối thiểu (Margin):</span>
+                <span id="requiredMargin" class="result-val">$325,000</span>
+            </div>
+            <div class="result-row">
+                <span>Số Tiền Lỗ Lệnh Này:</span>
+                <span id="lossAmount" class="result-val highlight-loss">-$1,000.00</span>
+            </div>
+            <div class="result-row">
+                <span>Số Tiền Lãi Lệnh Này:</span>
+                <span id="profitAmount" class="result-val highlight-profit">+$2,000.00</span>
+            </div>
+
+            <div class="ftmo-box">
+                <div class="card-title" style="margin-bottom: 8px; color: var(--accent-yellow);">🛡️ Giới Hạn Quỹ (Daily 5%)</div>
+                <div class="result-row">
+                    <span>Hạn mức lỗ trong ngày:</span>
+                    <span id="dailyLimit" class="result-val highlight-warn">$5,000.00</span>
+                </div>
+                <div class="result-row">
+                    <span>Tổng sụt giảm cho phép (Max 10%):</span>
+                    <span id="maxDrawdownLimit" class="result-val highlight-loss">$10,000.00</span>
+                </div>
+            </div>
+
+            <button class="btn-save" onclick="saveTradeToJournal()">💾 Lưu Lệnh</button>
+        </div>
+    </div>
+
+    <div class="journal-section">
+        <div class="journal-header">
+            <div class="card-title" style="margin: 0;">📊 Tổng Hợp Lãi/Lỗ & Nhật Ký Giao Dịch</div>
+            <button class="btn-clear" onclick="clearJournal()">Xóa Toàn Bộ</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="s-label">Tổng Số Lệnh Đã Lưu</div>
+                <div id="statTotalTrades" class="s-val">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="s-label">
