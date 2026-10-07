@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Trị Vốn, Thi Quỹ & Nhật Ký Giao Dịch</title>
+    <title>Quản Trị Vốn & Đi Lệnh</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -13,7 +13,6 @@
             --text-muted: #94a3b8;
             --accent-green: #00b894;
             --accent-red: #ff4d4d;
-            --accent-yellow: #f59e0b;
             --accent-blue: #3b82f6;
             --border-color: #374151;
         }
@@ -80,6 +79,31 @@
             color: #fff;
         }
 
+        /* 3 Thẻ tóm tắt phía trên */
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .mini-card {
+            background: var(--card-inner);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+        .mini-card .label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+        .mini-card .val {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
         .main-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -108,39 +132,17 @@
             gap: 8px;
         }
 
-        .summary-row {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .mini-card {
-            background: var(--card-inner);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 12px;
-            text-align: center;
-        }
-        .mini-card .label {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-        }
-        .mini-card .val {
-            font-size: 15px;
-            font-weight: bold;
-        }
-
         .form-group {
             margin-bottom: 12px;
         }
         label {
             display: block;
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-muted);
             margin-bottom: 4px;
+            font-weight: 600;
         }
-        input, select {
+        input {
             width: 100%;
             padding: 9px 12px;
             background: var(--bg-color);
@@ -161,11 +163,19 @@
         .row-2 .form-group {
             flex: 1;
         }
+        input[type="range"] {
+            accent-color: var(--accent-green);
+            cursor: pointer;
+            padding: 0;
+            height: 6px;
+            background: var(--bg-color);
+            border-radius: 3px;
+        }
 
         .result-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             font-size: 14px;
         }
         .result-row:last-child {
@@ -180,21 +190,11 @@
         .highlight-profit {
             color: var(--accent-green);
         }
-        .highlight-warn {
-            color: var(--accent-yellow);
-        }
         .error-text {
             color: var(--accent-red);
             font-size: 12px;
             margin-top: 5px;
             font-style: italic;
-        }
-        .ftmo-box {
-            background: rgba(245, 158, 11, 0.05);
-            border: 1px dashed var(--accent-yellow);
-            border-radius: 10px;
-            padding: 12px;
-            margin-top: 16px;
         }
 
         .btn-save {
@@ -214,12 +214,12 @@
             opacity: 0.9;
         }
 
+        /* Phần Nhật ký & Tổng hợp */
         .journal-section {
             background: var(--card-inner);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 16px;
-            margin-top: 20px;
         }
         .journal-header {
             display: flex;
@@ -298,8 +298,8 @@
 <div class="container">
     <div class="header-top">
         <div>
-            <h2>🏛️ Quản Trị Vốn, Thi Quỹ & Nhật Ký Giao Dịch</h2>
-            <div class="subtitle">Kiểm soát rủi ro chuẩn quỹ và tổng hợp hiệu suất giao dịch</div>
+            <h2>📊 Quản Trị Vốn & Đi Lệnh</h2>
+            <div class="subtitle">Tính toán khối lượng vị thế và quản trị rủi ro giao dịch chuyên nghiệp</div>
         </div>
         <div class="side-selector">
             <button id="btnLong" class="side-btn active long" onclick="setSide('LONG')">LONG</button>
@@ -307,50 +307,43 @@
         </div>
     </div>
 
+    <!-- 3 Thẻ Tóm Tắt Phía Trên -->
     <div class="summary-row">
         <div class="mini-card">
-            <div class="label">Rủi Ro Lệnh Này</div>
-            <div id="topRiskAmount" class="val highlight-loss">$100.00</div>
+            <div class="label">Số Tiền Chịu Rủi Ro</div>
+            <div id="topRiskAmount" class="val highlight-loss">$20.00</div>
         </div>
         <div class="mini-card">
             <div class="label">Lợi Nhuận Kỳ Vọng</div>
-            <div id="topProfitAmount" class="val highlight-profit">$200.00</div>
+            <div id="topProfitAmount" class="val highlight-profit">$60.00</div>
         </div>
         <div class="mini-card">
             <div class="label">Tỷ Lệ R : R</div>
-            <div id="topRrRatio" class="val">1 : 2.00</div>
+            <div id="topRrRatio" class="val">1 : 3.00</div>
         </div>
     </div>
 
     <div class="main-grid">
+        <!-- Cột Thông Số Đầu Vào -->
         <div class="card-box">
-            <div class="card-title">⚙️ Thông Số Tài Khoản & Lệnh</div>
+            <div class="card-title">⚙️ Thông Số Đầu Vào</div>
 
             <div class="form-group">
-                <label>TÊN CẶP GIAO DỊCH (Ví dụ: BTCUSDT)</label>
-                <input type="text" id="pairName" value="BTCUSDT" oninput="calculate()">
+                <label>TÊN CẶP GIAO DỊCH</label>
+                <input type="text" id="pairName" value="BTCUSDT">
             </div>
 
-            <div class="row-2">
-                <div class="form-group">
-                    <label>VỐN QUỸ BAN ĐẦU ($)</label>
-                    <input type="number" id="accountBalance" value="100000" oninput="calculate()">
-                </div>
-                <div class="form-group">
-                    <label>SỐ DƯ ĐẦU NGÀY ($)</label>
-                    <input type="number" id="dayStartBalance" value="100000" oninput="calculate()">
-                </div>
+            <div class="form-group">
+                <label>TỔNG VỐN TÀI KHOẢN ($)</label>
+                <input type="number" id="accountBalance" value="1000" oninput="calculate()">
             </div>
 
-            <div class="row-2">
-                <div class="form-group">
-                    <label>RỦI RO MỖI LỆNH (%)</label>
-                    <input type="number" id="riskPercentage" value="1" step="0.1" oninput="calculate()">
+            <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <label style="margin: 0;">RỦI RO MỖI LỆNH (%)</label>
+                    <span id="riskPctLabel" style="font-size: 12px; font-weight: bold; color: var(--accent-green);">2.0%</span>
                 </div>
-                <div class="form-group">
-                    <label>ĐÒN BẨY (x)</label>
-                    <input type="number" id="leverage" value="20" oninput="calculate()">
-                </div>
+                <input type="range" id="riskRange" min="0.5" max="10" step="0.5" value="2" oninput="syncRisk('range')">
             </div>
 
             <div class="row-2">
@@ -359,58 +352,50 @@
                     <input type="number" id="entryPrice" value="65000" oninput="calculate()">
                 </div>
                 <div class="form-group">
-                    <label>CẮT LỖ (SL)</label>
-                    <input type="number" id="stopLoss" value="64000" oninput="calculate()">
+                    <label>ĐÒN BẨY (X)</label>
+                    <input type="number" id="leverage" value="20" oninput="calculate()">
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>CHỐT LỜI (TP)</label>
-                <input type="number" id="takeProfit" value="67000" oninput="calculate()">
+            <div class="row-2">
+                <div class="form-group">
+                    <label>CẮT LỖ (STOP LOSS)</label>
+                    <input type="number" id="stopLoss" value="64000" oninput="calculate()">
+                </div>
+                <div class="form-group">
+                    <label>CHỐT LỜI (TAKE PROFIT)</label>
+                    <input type="number" id="takeProfit" value="68000" oninput="calculate()">
+                </div>
             </div>
             <div id="errorMsg" class="error-text"></div>
         </div>
 
+        <!-- Cột Lệnh Cần Đặt -->
         <div class="card-box">
-            <div class="card-title">📋 Khối Lượng & Kiểm Soát Quỹ</div>
+            <div class="card-title">📋 Lệnh Cần Đặt</div>
 
             <div class="result-row">
-                <span>Khối lượng vị thế (Units):</span>
-                <span id="positionUnits" class="result-val">0.00</span>
+                <span>Khối lượng vị thế (Units / Coin):</span>
+                <span id="positionUnits" class="result-val">0.0200</span>
             </div>
             <div class="result-row">
-                <span>Tổng giá trị vị thế (Size):</span>
-                <span id="totalPositionSize" class="result-val">$0.00</span>
+                <span>Tổng giá trị vị thế (Position Size):</span>
+                <span id="totalPositionSize" class="result-val">$1,300.00</span>
             </div>
             <div class="result-row">
                 <span>Ký quỹ tối thiểu (Margin):</span>
-                <span id="requiredMargin" class="result-val">$0.00</span>
+                <span id="requiredMargin" class="result-val">$65.00</span>
             </div>
             <div class="result-row">
-                <span>Số Tiền Lỗ Lệnh Này:</span>
-                <span id="lossAmount" class="result-val highlight-loss">-$0.00</span>
-            </div>
-            <div class="result-row">
-                <span>Số Tiền Lãi Lệnh Này:</span>
-                <span id="profitAmount" class="result-val highlight-profit">+$0.00</span>
+                <span>Tỷ lệ biến động SL / TP:</span>
+                <span id="slTpPct" class="result-val">-1.54% / +4.62%</span>
             </div>
 
-            <div class="ftmo-box">
-                <div class="card-title" style="margin-bottom: 8px; color: var(--accent-yellow);">🛡️ Giới Hạn Quỹ (Daily 5%)</div>
-                <div class="result-row">
-                    <span>Hạn mức lỗ trong ngày:</span>
-                    <span id="dailyLimit" class="result-val highlight-warn">$0.00</span>
-                </div>
-                <div class="result-row">
-                    <span>Tổng sụt giảm cho phép (Max 10%):</span>
-                    <span id="maxDrawdownLimit" class="result-val highlight-loss">$0.00</span>
-                </div>
-            </div>
-
-            <button class="btn-save" onclick="saveTradeToJournal()">💾 Lưu Lệnh</button>
+            <button class="btn-save" onclick="saveTradeToJournal()">💾 Lưu Lệnh Vào Nhật Ký</button>
         </div>
     </div>
 
+    <!-- Phần Nhật Ký & Tổng Hợp -->
     <div class="journal-section">
         <div class="journal-header">
             <div class="card-title" style="margin: 0;">📊 Tổng Hợp Lãi/Lỗ & Nhật Ký Giao Dịch</div>
@@ -471,10 +456,15 @@ function setSide(side) {
     calculate();
 }
 
+function syncRisk(source) {
+    let range = document.getElementById('riskRange');
+    document.getElementById('riskPctLabel').innerText = parseFloat(range.value).toFixed(1) + '%';
+    calculate();
+}
+
 function calculate() {
     let balance = parseFloat(document.getElementById('accountBalance').value) || 0;
-    let dayStartBalance = parseFloat(document.getElementById('dayStartBalance').value) || balance;
-    let riskPct = parseFloat(document.getElementById('riskPercentage').value) || 0;
+    let riskPct = parseFloat(document.getElementById('riskRange').value) || 0;
     let entry = parseFloat(document.getElementById('entryPrice').value) || 0;
     let leverage = parseFloat(document.getElementById('leverage').value) || 1;
     let sl = parseFloat(document.getElementById('stopLoss').value) || 0;
@@ -483,22 +473,28 @@ function calculate() {
 
     if (errorMsg) errorMsg.innerText = "";
 
-    let lossAmount = dayStartBalance * (riskPct / 100);
+    let lossAmount = balance * (riskPct / 100);
     let units = 0;
     let positionSize = 0;
     let margin = 0;
     let profitAmount = 0;
     let rr = 0;
+    let slPct = 0;
+    let tpPct = 0;
 
     if (entry > 0) {
         if (currentSide === 'LONG') {
             if (sl >= entry || tp <= entry) {
                 if (errorMsg) errorMsg.innerText = "⚠️ Lệnh LONG: Stop Loss phải nhỏ hơn Entry và Take Profit phải lớn hơn Entry!";
             }
+            slPct = ((sl - entry) / entry) * 100;
+            tpPct = ((tp - entry) / entry) * 100;
         } else {
             if (sl <= entry || tp >= entry) {
                 if (errorMsg) errorMsg.innerText = "⚠️ Lệnh SHORT: Stop Loss phải lớn hơn Entry và Take Profit phải nhỏ hơn Entry!";
             }
+            slPct = ((entry - sl) / entry) * 100;
+            tpPct = ((entry - tp) / entry) * 100;
         }
 
         let slDistance = Math.abs(entry - sl);
@@ -513,21 +509,16 @@ function calculate() {
         }
     }
 
-    let dailyLimitVal = dayStartBalance * 0.05;
-    let maxDrawdownVal = balance * 0.10;
-
+    // Hiển thị kết quả lên 3 thẻ phía trên và bảng lệnh
+    let hasError = errorMsg && errorMsg.innerText !== "";
     document.getElementById('topRiskAmount').innerText = `$${lossAmount.toFixed(2)}`;
-    document.getElementById('topProfitAmount').innerText = (errorMsg && errorMsg.innerText) ? "$0.00" : `$${profitAmount.toFixed(2)}`;
-    document.getElementById('topRrRatio').innerText = (errorMsg && errorMsg.innerText) ? "1 : 0" : `1 : ${rr.toFixed(2)}`;
+    document.getElementById('topProfitAmount').innerText = hasError ? "$0.00" : `$${profitAmount.toFixed(2)}`;
+    document.getElementById('topRrRatio').innerText = hasError ? "1 : 0" : `1 : ${rr.toFixed(2)}`;
 
     document.getElementById('positionUnits').innerText = units.toFixed(4);
     document.getElementById('totalPositionSize').innerText = `$${positionSize.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
     document.getElementById('requiredMargin').innerText = `$${margin.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-    document.getElementById('lossAmount').innerText = `-$${lossAmount.toFixed(2)}`;
-    document.getElementById('profitAmount').innerText = (errorMsg && errorMsg.innerText) ? "$0.00" : `+$${profitAmount.toFixed(2)}`;
-
-    document.getElementById('dailyLimit').innerText = `-$${dailyLimitVal.toFixed(2)} (5%)`;
-    document.getElementById('maxDrawdownLimit').innerText = `-$${maxDrawdownVal.toFixed(2)} (10%)`;
+    document.getElementById('slTpPct').innerText = `${slPct.toFixed(2)}% / ${tpPct > 0 ? '+' : ''}${tpPct.toFixed(2)}%`;
 
     return { units, lossAmount, profitAmount, entry, sl, tp };
 }
@@ -577,12 +568,9 @@ function renderJournal() {
 
     if (totalTrades === 0) {
         tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Chưa có lệnh nào được lưu.</td></tr>`;
-        let sTrades = document.getElementById('statTotalTrades');
-        let sLoss = document.getElementById('statTotalLoss');
-        let sProfit = document.getElementById('statTotalProfit');
-        if (sTrades) sTrades.innerText = "0";
-        if (sLoss) sLoss.innerText = "$0.00";
-        if (sProfit) sProfit.innerText = "$0.00";
+        document.getElementById('statTotalTrades').innerText = "0";
+        document.getElementById('statTotalLoss').innerText = "$0.00";
+        document.getElementById('statTotalProfit').innerText = "$0.00";
         return;
     }
 
@@ -604,12 +592,9 @@ function renderJournal() {
         tbody.appendChild(tr);
     });
 
-    let sTrades = document.getElementById('statTotalTrades');
-    let sLoss = document.getElementById('statTotalLoss');
-    let sProfit = document.getElementById('statTotalProfit');
-    if (sTrades) sTrades.innerText = totalTrades;
-    if (sLoss) sLoss.innerText = `-$${totalLossSum.toFixed(2)}`;
-    if (sProfit) sProfit.innerText = `+$${totalProfitSum.toFixed(2)}`;
+    document.getElementById('statTotalTrades').innerText = totalTrades;
+    document.getElementById('statTotalLoss').innerText = `-$${totalLossSum.toFixed(2)}`;
+    document.getElementById('statTotalProfit').innerText = `+$${totalProfitSum.toFixed(2)}`;
 }
 
 function clearJournal() {
