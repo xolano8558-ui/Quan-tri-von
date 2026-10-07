@@ -51,7 +51,6 @@
             margin-top: 4px;
             margin-bottom: 20px;
         }
-        /* Nút Long / Short */
         .side-selector {
             display: flex;
             background: var(--card-inner);
@@ -105,7 +104,6 @@
             gap: 8px;
         }
 
-        /* Top Summary Cards */
         .summary-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -165,7 +163,6 @@
             padding: 0;
         }
 
-        /* Result details */
         .result-row {
             display: flex;
             justify-content: space-between;
@@ -184,6 +181,12 @@
         .highlight-profit {
             color: var(--accent-green);
         }
+        .error-text {
+            color: var(--accent-red);
+            font-size: 12px;
+            margin-top: 5px;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -200,7 +203,6 @@
         </div>
     </div>
 
-    <!-- 3 Thẻ tóm tắt phía trên -->
     <div class="summary-row">
         <div class="mini-card">
             <div class="label">Số Tiền Chịu Rủi Ro</div>
@@ -217,7 +219,6 @@
     </div>
 
     <div class="main-grid">
-        <!-- Cột thông số đầu vào -->
         <div class="card-box">
             <div class="card-title">⚙️ Thông Số Đầu Vào</div>
 
@@ -255,9 +256,9 @@
                     <input type="number" id="takeProfit" value="69000" oninput="calculate()">
                 </div>
             </div>
+            <div id="errorMsg" class="error-text"></div>
         </div>
 
-        <!-- Cột kết quả chi tiết -->
         <div class="card-box">
             <div class="card-title">📋 Lệnh Cần Đặt</div>
 
@@ -297,6 +298,21 @@ function setSide(side) {
     let btnLong = document.getElementById('btnLong');
     let btnShort = document.getElementById('btnShort');
     
+    let entry = parseFloat(document.getElementById('entryPrice').value) || 0;
+    let sl = parseFloat(document.getElementById('stopLoss').value) || 0;
+    let tp = parseFloat(document.getElementById('takeProfit').value) || 0;
+
+    // Tự động đổi chỗ SL/TP cho phù hợp khi chuyển đổi qua lại giữa Long/Short để tiện cho người dùng
+    if (entry > 0) {
+        if (side === 'LONG' && sl > entry) {
+            document.getElementById('stopLoss').value = entry - (sl - entry);
+            document.getElementById('takeProfit').value = entry + (entry - tp);
+        } else if (side === 'SHORT' && sl < entry) {
+            document.getElementById('stopLoss').value = entry + (entry - sl);
+            document.getElementById('takeProfit').value = entry - (tp - entry);
+        }
+    }
+
     if (side === 'LONG') {
         btnLong.className = 'side-btn active long';
         btnShort.className = 'side-btn short';
@@ -325,23 +341,32 @@ function calculate() {
     let leverage = parseFloat(document.getElementById('leverage').value) || 1;
     let sl = parseFloat(document.getElementById('stopLoss').value) || 0;
     let tp = parseFloat(document.getElementById('takeProfit').value) || 0;
+    let errorMsg = document.getElementById('errorMsg');
 
-    // Tính số tiền rủi ro ($)
+    errorMsg.innerText = "";
+
     let lossAmount = balance * (riskPct / 100);
-
     let units = 0;
     let positionSize = 0;
     let margin = 0;
     let profitAmount = 0;
-    let rr = 1;
+    let rr = 0;
     let slPct = 0;
     let tpPct = 0;
 
     if (entry > 0) {
         if (currentSide === 'LONG') {
+            // Kiểm tra tính hợp lệ lệnh LONG: SL phải < Entry, TP phải > Entry
+            if (sl >= entry || tp <= entry) {
+                errorMsg.innerText = "⚠️ Lệnh LONG: Stop Loss phải nhỏ hơn Entry và Take Profit phải lớn hơn Entry!";
+            }
             slPct = ((sl - entry) / entry) * 100;
             tpPct = ((tp - entry) / entry) * 100;
         } else {
+            // Kiểm tra tính hợp lệ lệnh SHORT: SL phải > Entry, TP phải < Entry
+            if (sl <= entry || tp >= entry) {
+                errorMsg.innerText = "⚠️ Lệnh SHORT: Stop Loss phải lớn hơn Entry và Take Profit phải nhỏ hơn Entry!";
+            }
             slPct = ((entry - sl) / entry) * 100;
             tpPct = ((entry - tp) / entry) * 100;
         }
@@ -349,7 +374,7 @@ function calculate() {
         let slDistance = Math.abs(entry - sl);
         let tpDistance = Math.abs(tp - entry);
 
-        if (slDistance > 0) {
+        if (slDistance > 0 && errorMsg.innerText === "") {
             units = lossAmount / slDistance;
             positionSize = units * entry;
             margin = leverage > 0 ? positionSize / leverage : positionSize;
@@ -358,20 +383,18 @@ function calculate() {
         }
     }
 
-    // Hiển thị kết quả ra giao diện
     document.getElementById('topRiskAmount').innerText = `$${lossAmount.toFixed(2)}`;
-    document.getElementById('topProfitAmount').innerText = `$${profitAmount.toFixed(2)}`;
-    document.getElementById('topRrRatio').innerText = `1 : ${rr.toFixed(2)}`;
+    document.getElementById('topProfitAmount').innerText = errorMsg.innerText ? "$0.00" : `$${profitAmount.toFixed(2)}`;
+    document.getElementById('topRrRatio').innerText = errorMsg.innerText ? "1 : 0" : `1 : ${rr.toFixed(2)}`;
 
     document.getElementById('positionUnits').innerText = units.toFixed(4);
     document.getElementById('totalPositionSize').innerText = `$${positionSize.toFixed(2)}`;
     document.getElementById('requiredMargin').innerText = `$${margin.toFixed(2)}`;
     document.getElementById('lossAmount').innerText = `-$${lossAmount.toFixed(2)}`;
-    document.getElementById('profitAmount').innerText = `+$${profitAmount.toFixed(2)}`;
-    document.getElementById('slTpPct').innerText = `${slPct.toFixed(2)}% / +${tpPct.toFixed(2)}%`;
+    document.getElementById('profitAmount').innerText = errorMsg.innerText ? "$0.00" : `+$${profitAmount.toFixed(2)}`;
+    document.getElementById('slTpPct').innerText = `${slPct.toFixed(2)}% / ${tpPct > 0 ? '+' : ''}${tpPct.toFixed(2)}%`;
 }
 
-// Chạy tính toán khi load trang
 window.onload = calculate;
 </script>
 
