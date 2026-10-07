@@ -6,85 +6,171 @@
     <title>Quản Trị Vốn & Đi Lệnh</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
+            --bg-color: #0b0f19;
+            --card-bg: #111827;
+            --card-inner: #1f2937;
             --text-color: #f8fafc;
             --text-muted: #94a3b8;
             --accent-green: #00b894;
             --accent-red: #ff4d4d;
-            --border-color: #334155;
+            --border-color: #374151;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: 20px;
+            padding: 16px;
             display: flex;
             justify-content: center;
         }
         .container {
             width: 100%;
-            max-width: 600px;
+            max-width: 850px;
             background: var(--card-bg);
             padding: 24px;
             border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
         }
         h2 {
-            margin-top: 0;
-            font-size: 22px;
+            margin: 0;
+            font-size: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
         .subtitle {
             color: var(--text-muted);
-            font-size: 14px;
+            font-size: 13px;
+            margin-top: 4px;
             margin-bottom: 20px;
         }
+        /* Nút Long / Short */
+        .side-selector {
+            display: flex;
+            background: var(--card-inner);
+            border-radius: 8px;
+            padding: 3px;
+            border: 1px solid var(--border-color);
+        }
+        .side-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 8px 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .side-btn.active.long {
+            background: var(--accent-green);
+            color: #fff;
+        }
+        .side-btn.active.short {
+            background: var(--accent-red);
+            color: #fff;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 20px;
+        }
+        @media(max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card-box {
+            background: var(--card-inner);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .card-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Top Summary Cards */
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .mini-card {
+            background: var(--card-inner);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+        .mini-card .label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        .mini-card .val {
+            font-size: 15px;
+            font-weight: bold;
+        }
+
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
         label {
             display: block;
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-muted);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
-        input, select {
+        input {
             width: 100%;
-            padding: 10px 14px;
-            background: #0f172a;
+            padding: 9px 12px;
+            background: var(--bg-color);
             border: 1px solid var(--border-color);
             border-radius: 8px;
             color: var(--text-color);
-            font-size: 16px;
+            font-size: 15px;
             box-sizing: border-box;
         }
         input:focus {
             outline: none;
             border-color: var(--accent-green);
         }
-        .row {
+        .row-2 {
             display: flex;
-            gap: 12px;
+            gap: 10px;
         }
-        .row .form-group {
+        .row-2 .form-group {
             flex: 1;
         }
-        .results-box {
-            background: #0f172a;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 24px;
+        input[type="range"] {
+            accent-color: var(--accent-green);
+            cursor: pointer;
+            padding: 0;
         }
+
+        /* Result details */
         .result-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 12px;
-            font-size: 15px;
+            margin-bottom: 10px;
+            font-size: 14px;
         }
         .result-row:last-child {
             margin-bottom: 0;
@@ -103,72 +189,136 @@
 <body>
 
 <div class="container">
-    <h2>📊 Quản Trị Vốn & Đi Lệnh</h2>
-    <div class="subtitle">Tính toán khối lượng vị thế và quản trị rủi ro chuyên nghiệp</div>
-
-    <div class="form-group">
-        <label>Tổng Vốn Tài Khoản ($)</label>
-        <input type="number" id="accountBalance" value="1000" oninput="calculateTradingMetrics()">
-    </div>
-
-    <div class="form-group">
-        <label>Rủi Ro Mỗi Lệnh (%)</label>
-        <input type="number" id="riskPercentage" value="2" step="0.1" oninput="calculateTradingMetrics()">
-    </div>
-
-    <div class="row">
-        <div class="form-group">
-            <label>Giá Entry ($)</label>
-            <input type="number" id="entryPrice" value="65000" oninput="calculateTradingMetrics()">
+    <div class="header-top">
+        <div>
+            <h2>📊 Quản Trị Vốn & Đi Lệnh</h2>
+            <div class="subtitle">Tính toán khối lượng vị thế và quản trị rủi ro chuyên nghiệp</div>
         </div>
-        <div class="form-group">
-            <label>Đòn Bẩy (x)</label>
-            <input type="number" id="leverage" value="20" oninput="calculateTradingMetrics()">
+        <div class="side-selector">
+            <button id="btnLong" class="side-btn active long" onclick="setSide('LONG')">LONG</button>
+            <button id="btnShort" class="side-btn short" onclick="setSide('SHORT')">SHORT</button>
         </div>
     </div>
 
-    <div class="row">
-        <div class="form-group">
-            <label>Cắt Lỗ - Stop Loss ($)</label>
-            <input type="number" id="stopLoss" value="61000" oninput="calculateTradingMetrics()">
+    <!-- 3 Thẻ tóm tắt phía trên -->
+    <div class="summary-row">
+        <div class="mini-card">
+            <div class="label">Số Tiền Chịu Rủi Ro</div>
+            <div id="topRiskAmount" class="val highlight-loss">$30.00</div>
         </div>
-        <div class="form-group">
-            <label>Chốt Lời - Take Profit ($)</label>
-            <input type="number" id="takeProfit" value="69000" oninput="calculateTradingMetrics()">
+        <div class="mini-card">
+            <div class="label">Lợi Nhuận Kỳ Vọng</div>
+            <div id="topProfitAmount" class="val highlight-profit">$30.00</div>
+        </div>
+        <div class="mini-card">
+            <div class="label">Tỷ Lệ R : R</div>
+            <div id="topRrRatio" class="val">1 : 1.00</div>
         </div>
     </div>
 
-    <div class="results-box">
-        <div class="result-row">
-            <span>Khối lượng vị thế (Units/Coin):</span>
-            <span id="positionUnits" class="result-val">0.0000</span>
+    <div class="main-grid">
+        <!-- Cột thông số đầu vào -->
+        <div class="card-box">
+            <div class="card-title">⚙️ Thông Số Đầu Vào</div>
+
+            <div class="form-group">
+                <label>TỔNG VỐN TÀI KHOẢN ($)</label>
+                <input type="number" id="accountBalance" value="1000" oninput="calculate()">
+            </div>
+
+            <div class="form-group">
+                <label>RỦI RO MỖI LỆNH (%)</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="range" id="riskRange" min="0.5" max="10" step="0.5" value="3" oninput="syncRisk('range')" style="flex:2;">
+                    <input type="number" id="riskPercentage" value="3" step="0.1" oninput="syncRisk('input')" style="flex:1;">
+                </div>
+            </div>
+
+            <div class="row-2">
+                <div class="form-group">
+                    <label>GIÁ ENTRY ($)</label>
+                    <input type="number" id="entryPrice" value="65000" oninput="calculate()">
+                </div>
+                <div class="form-group">
+                    <label>ĐÒN BẨY (x)</label>
+                    <input type="number" id="leverage" value="20" oninput="calculate()">
+                </div>
+            </div>
+
+            <div class="row-2">
+                <div class="form-group">
+                    <label>CẮT LỖ (STOP LOSS)</label>
+                    <input type="number" id="stopLoss" value="61000" oninput="calculate()">
+                </div>
+                <div class="form-group">
+                    <label>CHỐT LỜI (TAKE PROFIT)</label>
+                    <input type="number" id="takeProfit" value="69000" oninput="calculate()">
+                </div>
+            </div>
         </div>
-        <div class="result-row">
-            <span>Tổng giá trị vị thế (Position Size):</span>
-            <span id="totalPositionSize" class="result-val">$0.00</span>
-        </div>
-        <div class="result-row">
-            <span>Ký quỹ tối thiểu (Margin):</span>
-            <span id="requiredMargin" class="result-val">$0.00</span>
-        </div>
-        <div class="result-row">
-            <span>Số Tiền Lỗ Dự Kiến:</span>
-            <span id="lossAmount" class="result-val highlight-loss">-$0.00</span>
-        </div>
-        <div class="result-row">
-            <span>Số Tiền Lãi Dự Kiến:</span>
-            <span id="profitAmount" class="result-val highlight-profit">+$0.00</span>
-        </div>
-        <div class="result-row">
-            <span>Tỷ Lệ R : R:</span>
-            <span id="rrRatio" class="result-val">1:1.00</span>
+
+        <!-- Cột kết quả chi tiết -->
+        <div class="card-box">
+            <div class="card-title">📋 Lệnh Cần Đặt</div>
+
+            <div class="result-row">
+                <span>Khối lượng vị thế (Units/Coin):</span>
+                <span id="positionUnits" class="result-val">0.0075</span>
+            </div>
+            <div class="result-row">
+                <span>Tổng giá trị vị thế (Position Size):</span>
+                <span id="totalPositionSize" class="result-val">$487.50</span>
+            </div>
+            <div class="result-row">
+                <span>Ký quỹ tối thiểu (Margin):</span>
+                <span id="requiredMargin" class="result-val">$24.38</span>
+            </div>
+            <div class="result-row">
+                <span>Số Tiền Lỗ Dự Kiến:</span>
+                <span id="lossAmount" class="result-val highlight-loss">-$30.00</span>
+            </div>
+            <div class="result-row">
+                <span>Số Tiền Lãi Dự Kiến:</span>
+                <span id="profitAmount" class="result-val highlight-profit">+$30.00</span>
+            </div>
+            <div class="result-row">
+                <span>Tỷ Lệ Biến Động SL / TP:</span>
+                <span id="slTpPct" class="result-val">-6.15% / +6.15%</span>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-function calculateTradingMetrics() {
-    // 1. Lấy giá trị đầu vào
+let currentSide = 'LONG';
+
+function setSide(side) {
+    currentSide = side;
+    let btnLong = document.getElementById('btnLong');
+    let btnShort = document.getElementById('btnShort');
+    
+    if (side === 'LONG') {
+        btnLong.className = 'side-btn active long';
+        btnShort.className = 'side-btn short';
+    } else {
+        btnLong.className = 'side-btn long';
+        btnShort.className = 'side-btn active short';
+    }
+    calculate();
+}
+
+function syncRisk(source) {
+    let range = document.getElementById('riskRange');
+    let input = document.getElementById('riskPercentage');
+    if (source === 'range') {
+        input.value = range.value;
+    } else {
+        range.value = input.value;
+    }
+    calculate();
+}
+
+function calculate() {
     let balance = parseFloat(document.getElementById('accountBalance').value) || 0;
     let riskPct = parseFloat(document.getElementById('riskPercentage').value) || 0;
     let entry = parseFloat(document.getElementById('entryPrice').value) || 0;
@@ -176,41 +326,53 @@ function calculateTradingMetrics() {
     let sl = parseFloat(document.getElementById('stopLoss').value) || 0;
     let tp = parseFloat(document.getElementById('takeProfit').value) || 0;
 
-    // 2. Tính số tiền chịu rủi ro (Số tiền LỖ nếu chạm SL)
+    // Tính số tiền rủi ro ($)
     let lossAmount = balance * (riskPct / 100);
 
     let units = 0;
     let positionSize = 0;
     let margin = 0;
     let profitAmount = 0;
-    let rr = 0;
+    let rr = 1;
+    let slPct = 0;
+    let tpPct = 0;
 
     if (entry > 0) {
+        if (currentSide === 'LONG') {
+            slPct = ((sl - entry) / entry) * 100;
+            tpPct = ((tp - entry) / entry) * 100;
+        } else {
+            slPct = ((entry - sl) / entry) * 100;
+            tpPct = ((entry - tp) / entry) * 100;
+        }
+
         let slDistance = Math.abs(entry - sl);
+        let tpDistance = Math.abs(tp - entry);
+
         if (slDistance > 0) {
-            // Khối lượng = Số tiền rủi ro / Khoảng cách SL
             units = lossAmount / slDistance;
             positionSize = units * entry;
             margin = leverage > 0 ? positionSize / leverage : positionSize;
-
-            // Tính khoảng cách TP để ra Lãi và R:R
-            let tpDistance = Math.abs(tp - entry);
             rr = tpDistance / slDistance;
             profitAmount = lossAmount * rr;
         }
     }
 
-    // 3. Hiển thị kết quả ra màn hình
+    // Hiển thị kết quả ra giao diện
+    document.getElementById('topRiskAmount').innerText = `$${lossAmount.toFixed(2)}`;
+    document.getElementById('topProfitAmount').innerText = `$${profitAmount.toFixed(2)}`;
+    document.getElementById('topRrRatio').innerText = `1 : ${rr.toFixed(2)}`;
+
     document.getElementById('positionUnits').innerText = units.toFixed(4);
     document.getElementById('totalPositionSize').innerText = `$${positionSize.toFixed(2)}`;
     document.getElementById('requiredMargin').innerText = `$${margin.toFixed(2)}`;
     document.getElementById('lossAmount').innerText = `-$${lossAmount.toFixed(2)}`;
     document.getElementById('profitAmount').innerText = `+$${profitAmount.toFixed(2)}`;
-    document.getElementById('rrRatio').innerText = `1:${rr.toFixed(2)}`;
+    document.getElementById('slTpPct').innerText = `${slPct.toFixed(2)}% / +${tpPct.toFixed(2)}%`;
 }
 
-// Chạy tính toán ngay khi tải trang lần đầu
-window.onload = calculateTradingMetrics;
+// Chạy tính toán khi load trang
+window.onload = calculate;
 </script>
 
 </body>
