@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Trị Vốn & Đi Lệnh</title>
+    <title>Quản Trị Vốn & Thi Quỹ FTMO</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -13,6 +13,7 @@
             --text-muted: #94a3b8;
             --accent-green: #00b894;
             --accent-red: #ff4d4d;
+            --accent-yellow: #f59e0b;
             --border-color: #374151;
         }
         body {
@@ -26,7 +27,7 @@
         }
         .container {
             width: 100%;
-            max-width: 850px;
+            max-width: 900px;
             background: var(--card-bg);
             padding: 24px;
             border-radius: 16px;
@@ -49,7 +50,6 @@
             color: var(--text-muted);
             font-size: 13px;
             margin-top: 4px;
-            margin-bottom: 20px;
         }
         .side-selector {
             display: flex;
@@ -79,7 +79,7 @@
 
         .main-grid {
             display: grid;
-            grid-template-columns: 1.1fr 0.9fr;
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
         @media(max-width: 768px) {
@@ -104,6 +104,7 @@
             gap: 8px;
         }
 
+        /* Summary Row */
         .summary-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -136,7 +137,7 @@
             color: var(--text-muted);
             margin-bottom: 4px;
         }
-        input {
+        input, select {
             width: 100%;
             padding: 9px 12px;
             background: var(--bg-color);
@@ -157,11 +158,6 @@
         .row-2 .form-group {
             flex: 1;
         }
-        input[type="range"] {
-            accent-color: var(--accent-green);
-            cursor: pointer;
-            padding: 0;
-        }
 
         .result-row {
             display: flex;
@@ -181,11 +177,21 @@
         .highlight-profit {
             color: var(--accent-green);
         }
+        .highlight-warn {
+            color: var(--accent-yellow);
+        }
         .error-text {
             color: var(--accent-red);
             font-size: 12px;
             margin-top: 5px;
             font-style: italic;
+        }
+        .ftmo-box {
+            background: rgba(245, 158, 11, 0.05);
+            border: 1px dashed var(--accent-yellow);
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 16px;
         }
     </style>
 </head>
@@ -194,8 +200,8 @@
 <div class="container">
     <div class="header-top">
         <div>
-            <h2>📊 Quản Trị Vốn & Đi Lệnh</h2>
-            <div class="subtitle">Tính toán khối lượng vị thế và quản trị rủi ro chuyên nghiệp</div>
+            <h2>🏛️ Quản Trị Vốn & Thi Quỹ FTMO</h2>
+            <div class="subtitle">Kiểm soát rủi ro, Daily Drawdown & Max Drawdown chuẩn quỹ</div>
         </div>
         <div class="side-selector">
             <button id="btnLong" class="side-btn active long" onclick="setSide('LONG')">LONG</button>
@@ -203,35 +209,46 @@
         </div>
     </div>
 
+    <!-- Thông tin tổng quan quỹ -->
     <div class="summary-row">
         <div class="mini-card">
-            <div class="label">Số Tiền Chịu Rủi Ro</div>
-            <div id="topRiskAmount" class="val highlight-loss">$30.00</div>
+            <div class="label">Rủi Ro Lệnh Này</div>
+            <div id="topRiskAmount" class="val highlight-loss">$100.00</div>
         </div>
         <div class="mini-card">
             <div class="label">Lợi Nhuận Kỳ Vọng</div>
-            <div id="topProfitAmount" class="val highlight-profit">$30.00</div>
+            <div id="topProfitAmount" class="val highlight-profit">$200.00</div>
         </div>
         <div class="mini-card">
             <div class="label">Tỷ Lệ R : R</div>
-            <div id="topRrRatio" class="val">1 : 1.00</div>
+            <div id="topRrRatio" class="val">1 : 2.00</div>
         </div>
     </div>
 
     <div class="main-grid">
+        <!-- Cột Thông số đầu vào -->
         <div class="card-box">
-            <div class="card-title">⚙️ Thông Số Đầu Vào</div>
+            <div class="card-title">⚙️ Thông Số Tài Khoản & Lệnh</div>
 
-            <div class="form-group">
-                <label>TỔNG VỐN TÀI KHOẢN ($)</label>
-                <input type="number" id="accountBalance" value="1000" oninput="calculate()">
+            <div class="row-2">
+                <div class="form-group">
+                    <label>VỐN QUỸ BAN ĐẦU ($)</label>
+                    <input type="number" id="accountBalance" value="100000" oninput="calculate()">
+                </div>
+                <div class="form-group">
+                    <label>SỐ DƯ ĐẦU NGÀY ($)</label>
+                    <input type="number" id="dayStartBalance" value="100000" oninput="calculate()">
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>RỦI RO MỖI LỆNH (%)</label>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <input type="range" id="riskRange" min="0.5" max="10" step="0.5" value="3" oninput="syncRisk('range')" style="flex:2;">
-                    <input type="number" id="riskPercentage" value="3" step="0.1" oninput="syncRisk('input')" style="flex:1;">
+            <div class="row-2">
+                <div class="form-group">
+                    <label>LỖ ĐÃ THỰC HIỆN HÔM NAY ($)</label>
+                    <input type="number" id="todayRealizedLoss" value="0" oninput="calculate()">
+                </div>
+                <div class="form-group">
+                    <label>RỦI RO MỖI LỆNH (%)</label>
+                    <input type="number" id="riskPercentage" value="1" step="0.1" oninput="calculate()">
                 </div>
             </div>
 
@@ -249,42 +266,56 @@
             <div class="row-2">
                 <div class="form-group">
                     <label>CẮT LỖ (STOP LOSS)</label>
-                    <input type="number" id="stopLoss" value="61000" oninput="calculate()">
+                    <input type="number" id="stopLoss" value="64000" oninput="calculate()">
                 </div>
                 <div class="form-group">
                     <label>CHỐT LỜI (TAKE PROFIT)</label>
-                    <input type="number" id="takeProfit" value="69000" oninput="calculate()">
+                    <input type="number" id="takeProfit" value="67000" oninput="calculate()">
                 </div>
             </div>
             <div id="errorMsg" class="error-text"></div>
         </div>
 
+        <!-- Cột Kết quả & Giới hạn Quỹ -->
         <div class="card-box">
-            <div class="card-title">📋 Lệnh Cần Đặt</div>
+            <div class="card-title">📋 Khối Lượng & Kiểm Soát Quỹ</div>
 
             <div class="result-row">
-                <span>Khối lượng vị thế (Units/Coin):</span>
-                <span id="positionUnits" class="result-val">0.0075</span>
+                <span>Khối lượng vị thế (Units):</span>
+                <span id="positionUnits" class="result-val">100.00</span>
             </div>
             <div class="result-row">
-                <span>Tổng giá trị vị thế (Position Size):</span>
-                <span id="totalPositionSize" class="result-val">$487.50</span>
+                <span>Tổng giá trị vị thế (Size):</span>
+                <span id="totalPositionSize" class="result-val">$6,500,000</span>
             </div>
             <div class="result-row">
                 <span>Ký quỹ tối thiểu (Margin):</span>
-                <span id="requiredMargin" class="result-val">$24.38</span>
+                <span id="requiredMargin" class="result-val">$325,000</span>
             </div>
             <div class="result-row">
-                <span>Số Tiền Lỗ Dự Kiến:</span>
-                <span id="lossAmount" class="result-val highlight-loss">-$30.00</span>
+                <span>Số Tiền Lỗ Lệnh Này:</span>
+                <span id="lossAmount" class="result-val highlight-loss">-$1,000.00</span>
             </div>
             <div class="result-row">
-                <span>Số Tiền Lãi Dự Kiến:</span>
-                <span id="profitAmount" class="result-val highlight-profit">+$30.00</span>
+                <span>Số Tiền Lãi Lệnh Này:</span>
+                <span id="profitAmount" class="result-val highlight-profit">+$2,000.00</span>
             </div>
-            <div class="result-row">
-                <span>Tỷ Lệ Biến Động SL / TP:</span>
-                <span id="slTpPct" class="result-val">-6.15% / +6.15%</span>
+
+            <!-- Khung giám sát FTMO -->
+            <div class="ftmo-box">
+                <div class="card-title" style="margin-bottom: 8px; color: var(--accent-yellow);">🛡️ Giám Sát Giới Hạn Quỹ (FTMO Rules)</div>
+                <div class="result-row">
+                    <span>Hạn mức lỗ trong ngày (Daily 5%):</span>
+                    <span id="dailyLimit" class="result-val highlight-warn">$5,000.00</span>
+                </div>
+                <div class="result-row">
+                    <span>Hạn mức còn lại được phép lỗ hôm nay:</span>
+                    <span id="dailyRemaining" class="result-val">$5,000.00</span>
+                </div>
+                <div class="result-row">
+                    <span>Tổng sụt giảm cho phép (Max 10%):</span>
+                    <span id="maxDrawdownLimit" class="result-val highlight-loss">$10,000.00</span>
+                </div>
             </div>
         </div>
     </div>
@@ -298,21 +329,6 @@ function setSide(side) {
     let btnLong = document.getElementById('btnLong');
     let btnShort = document.getElementById('btnShort');
     
-    let entry = parseFloat(document.getElementById('entryPrice').value) || 0;
-    let sl = parseFloat(document.getElementById('stopLoss').value) || 0;
-    let tp = parseFloat(document.getElementById('takeProfit').value) || 0;
-
-    // Tự động đổi chỗ SL/TP cho phù hợp khi chuyển đổi qua lại giữa Long/Short để tiện cho người dùng
-    if (entry > 0) {
-        if (side === 'LONG' && sl > entry) {
-            document.getElementById('stopLoss').value = entry - (sl - entry);
-            document.getElementById('takeProfit').value = entry + (entry - tp);
-        } else if (side === 'SHORT' && sl < entry) {
-            document.getElementById('stopLoss').value = entry + (entry - sl);
-            document.getElementById('takeProfit').value = entry - (tp - entry);
-        }
-    }
-
     if (side === 'LONG') {
         btnLong.className = 'side-btn active long';
         btnShort.className = 'side-btn short';
@@ -323,19 +339,10 @@ function setSide(side) {
     calculate();
 }
 
-function syncRisk(source) {
-    let range = document.getElementById('riskRange');
-    let input = document.getElementById('riskPercentage');
-    if (source === 'range') {
-        input.value = range.value;
-    } else {
-        range.value = input.value;
-    }
-    calculate();
-}
-
 function calculate() {
     let balance = parseFloat(document.getElementById('accountBalance').value) || 0;
+    let dayStartBalance = parseFloat(document.getElementById('dayStartBalance').value) || balance;
+    let todayRealizedLoss = parseFloat(document.getElementById('todayRealizedLoss').value) || 0;
     let riskPct = parseFloat(document.getElementById('riskPercentage').value) || 0;
     let entry = parseFloat(document.getElementById('entryPrice').value) || 0;
     let leverage = parseFloat(document.getElementById('leverage').value) || 1;
@@ -345,30 +352,23 @@ function calculate() {
 
     errorMsg.innerText = "";
 
-    let lossAmount = balance * (riskPct / 100);
+    // Tính rủi ro lệnh hiện tại dựa trên số dư đầu ngày hoặc vốn
+    let lossAmount = dayStartBalance * (riskPct / 100);
     let units = 0;
     let positionSize = 0;
     let margin = 0;
     let profitAmount = 0;
     let rr = 0;
-    let slPct = 0;
-    let tpPct = 0;
 
     if (entry > 0) {
         if (currentSide === 'LONG') {
-            // Kiểm tra tính hợp lệ lệnh LONG: SL phải < Entry, TP phải > Entry
             if (sl >= entry || tp <= entry) {
                 errorMsg.innerText = "⚠️ Lệnh LONG: Stop Loss phải nhỏ hơn Entry và Take Profit phải lớn hơn Entry!";
             }
-            slPct = ((sl - entry) / entry) * 100;
-            tpPct = ((tp - entry) / entry) * 100;
         } else {
-            // Kiểm tra tính hợp lệ lệnh SHORT: SL phải > Entry, TP phải < Entry
             if (sl <= entry || tp >= entry) {
                 errorMsg.innerText = "⚠️ Lệnh SHORT: Stop Loss phải lớn hơn Entry và Take Profit phải nhỏ hơn Entry!";
             }
-            slPct = ((entry - sl) / entry) * 100;
-            tpPct = ((entry - tp) / entry) * 100;
         }
 
         let slDistance = Math.abs(entry - sl);
@@ -383,16 +383,36 @@ function calculate() {
         }
     }
 
+    // Quy tắc FTMO chuẩn:
+    // Daily Loss Limit = 5% số dư đầu ngày
+    let dailyLimitVal = dayStartBalance * 0.05;
+    // Hạn mức còn lại trong ngày = Daily Limit - Lỗ đã thực hiện hôm nay - Lỗ dự kiến lệnh này
+    let remainingToday = dailyLimitVal - todayRealizedLoss - lossAmount;
+    // Max Drawdown = 10% vốn ban đầu
+    let maxDrawdownVal = balance * 0.10;
+
+    // Hiển thị kết quả
     document.getElementById('topRiskAmount').innerText = `$${lossAmount.toFixed(2)}`;
     document.getElementById('topProfitAmount').innerText = errorMsg.innerText ? "$0.00" : `$${profitAmount.toFixed(2)}`;
     document.getElementById('topRrRatio').innerText = errorMsg.innerText ? "1 : 0" : `1 : ${rr.toFixed(2)}`;
 
     document.getElementById('positionUnits').innerText = units.toFixed(4);
-    document.getElementById('totalPositionSize').innerText = `$${positionSize.toFixed(2)}`;
-    document.getElementById('requiredMargin').innerText = `$${margin.toFixed(2)}`;
+    document.getElementById('totalPositionSize').innerText = `$${positionSize.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    document.getElementById('requiredMargin').innerText = `$${margin.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
     document.getElementById('lossAmount').innerText = `-$${lossAmount.toFixed(2)}`;
     document.getElementById('profitAmount').innerText = errorMsg.innerText ? "$0.00" : `+$${profitAmount.toFixed(2)}`;
-    document.getElementById('slTpPct').innerText = `${slPct.toFixed(2)}% / ${tpPct > 0 ? '+' : ''}${tpPct.toFixed(2)}%`;
+
+    // Hiển thị thông số FTMO
+    document.getElementById('dailyLimit').innerText = `-$${dailyLimitVal.toFixed(2)} (5%)`;
+    let remElem = document.getElementById('dailyRemaining');
+    remElem.innerText = `$${remainingToday.toFixed(2)}`;
+    if (remainingToday < 0) {
+        remElem.style.color = "var(--accent-red)";
+        remElem.innerText += " (CẢNH BÁO: VƯỢT QUÁ DAILY LOSS!)";
+    } else {
+        remElem.style.color = "var(--accent-green)";
+    }
+    document.getElementById('maxDrawdownLimit').innerText = `-$${maxDrawdownVal.toFixed(2)} (10%)`;
 }
 
 window.onload = calculate;
